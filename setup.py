@@ -10,7 +10,7 @@ README = open(os.path.join(here, "README.md")).read()
 
 setup(
     name="ffprog",
-    version=thresh.__version__,
+    version=ffprog.__version__,
     description="progress bar for ffmpeg",
     long_description=README,
     long_description_content_type="text/x-rst",
@@ -26,5 +26,9 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    scripts=["ffprog/ffprog", "ffprog/ffprog"],
+    entry_points={
+        "console_scripts": [
+            "ffprog=ffprog:ffrun",
+        ],
+    },
 )

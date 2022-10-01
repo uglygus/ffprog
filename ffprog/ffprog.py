@@ -63,7 +63,7 @@ class ProgressNotifier(object):
         self.source = None
         self.started = False
         self.pbar = None
-        self.bar_format = "{desc}: |{bar}| ETA {remaining}"
+        self.bar_format = "  {desc}: |{bar}| ETA {remaining}  "
         self.fps = None
         self.file = file or sys.stderr
         self.encoding = encoding or locale.getpreferredencoding() or "UTF-8"
@@ -84,7 +84,8 @@ class ProgressNotifier(object):
         else:
             self.line_acc.extend(char)
             if self.line_acc[-6:] == bytearray(b"[y/N] "):
-                print(self.line_acc.decode(self.encoding), end="", file=self.file)
+                print(self.line_acc.decode(self.encoding),
+                      end="", file=self.file)
                 self.file.flush()
                 if stdin:
                     stdin.put(input() + "\n")
@@ -143,13 +144,15 @@ class ProgressNotifier(object):
             self.pbar.update(current - self.pbar.n)
 
 
-def ffmpegpb(args=None, stream=sys.stderr, encoding=None, tqdm=tqdm):
+def ffrun(args=None, stream=sys.stderr, encoding=None, tqdm=tqdm):
+
+    if args is None:
+        args = sys.argv[1:]
 
     try:
         with ProgressNotifier(file=stream, encoding=encoding, tqdm=tqdm) as notifier:
-
             cmd = [which("ffmpeg")] + args
-
+            #print('calling =', ' '.join(cmd))
             p = subprocess.Popen(cmd, stderr=subprocess.PIPE)
 
             while True:
@@ -158,6 +161,7 @@ def ffmpegpb(args=None, stream=sys.stderr, encoding=None, tqdm=tqdm):
                     break
                 if out != b"":
                     notifier(out)
+                    #print('out=', out)
 
     except KeyboardInterrupt:
         print("Exiting.", file=stream)
@@ -174,4 +178,4 @@ def ffmpegpb(args=None, stream=sys.stderr, encoding=None, tqdm=tqdm):
 
 
 if __name__ == "__main__":
-    sys.exit(ffmpegpb(args=sys.argv[1:]))
+    sys.exit(ffrun(args=sys.argv[1:]))
